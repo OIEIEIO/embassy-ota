@@ -1,0 +1,37 @@
+name: Build All Firmware
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        firmware: [battery-monitor, temp-sensor, environmental, relay-controller]
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: xtensa-esp32-none-elf
+          
+      - name: Install espflash
+        run: cargo install espflash
+        
+      - name: Build ${{ matrix.firmware }}
+        run: |
+          cd firmware/${{ matrix.firmware }}
+          cargo build --release
+          espflash save-image --chip esp32 target/xtensa-esp32-none-elf/release/${{ matrix.firmware }} ${{ matrix.firmware }}.bin
+          sha256sum ${{ matrix.firmware }}.bin > ${{ matrix.firmware }}.bin.sha256
+          
+      - name: Upload Release Assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            firmware/${{ matrix.firmware }}/${{ matrix.firmware }}.bin
+            firmware/${{ matrix.firmware }}/${{ matrix.firmware }}.bin.sha256

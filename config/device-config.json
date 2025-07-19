@@ -1,0 +1,11 @@
+{
+  "devices": {
+    "94:b5:55:c7:cb:10": "battery-monitor"
+  },
+  "firmware_versions": {
+    "battery-monitor": "v1.0.0",
+    "temp-sensor": "v1.0.0", 
+    "environmental": "v1.0.0",
+    "relay-controller": "v1.0.0"
+  }
+}
